@@ -1,29 +1,21 @@
-import numpy as np
-
-
 class NeuralNetwork(object):
 
-    def __init__(self, layers, eta):
-        self.eta = eta
+    def __init__(self, layers):
         self.layers = layers
-
-    def fit(self, x, y):
-        cur_input = x
-        for layer in self.layers:
-            cur_input = layer.forward(cur_input)
-
-        init_delta = self.layers[-1].output - y
-        cur_delta = init_delta
-        for layer in reversed(self.layers):
-            cur_delta = layer.backward(cur_delta)
-
-        for layer in filter(lambda l: hasattr(l, 'weights'), self.layers):
-            layer.biases -= self.eta * (layer.db / 1)
-            layer.weights -= self.eta * (layer.dw / 1)
-
 
     def predict(self, x):
         cur_input = x
         for layer in self.layers:
             cur_input = layer.forward(cur_input)
         return cur_input
+
+    def forward_backward(self, x, y):
+        output = self.predict(x)
+
+        init_delta = output - y
+        cur_delta = init_delta
+        for layer in reversed(self.layers):
+            cur_delta = layer.backward(cur_delta)
+
+    def get_weighted_layers(self):
+        return filter(lambda l: hasattr(l, 'weights'), self.layers)
