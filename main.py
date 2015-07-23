@@ -7,18 +7,18 @@ from solvers import SGDSolver
 
 def main():
     network = NeuralNetwork([
-        LinearLayer(4, 2),
+        LinearLayer(4, 8),
         ActivationLayer('sigmoid'),
-        # LinearLayer(8, 4),
-        # ActivationLayer('sigmoid'),
-        LinearLayer(2, 2),
+        LinearLayer(8, 4),
+        ActivationLayer('sigmoid'),
+        LinearLayer(4, 2),
         ActivationLayer('tanh'),
     ])
 
     solver = SGDSolver(network, eta=0.1)
 
     X = [[1, 2, 3, 4]] * 10000
-    Y = [[1, -1.]] * 10000
+    Y = [[0.23148, -1]] * 10000
 
     print network.predict([1, 2, 3, 4])
     solver.solve(X, Y)

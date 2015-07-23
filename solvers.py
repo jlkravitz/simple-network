@@ -5,6 +5,8 @@ import numpy as np
 
 class Solver(object):
 
+    """Solvers optimize weights in a network."""
+
     def __init__(self, network, eta=0.01):
         self.network = network
         self.eta = eta
@@ -17,6 +19,8 @@ class Solver(object):
 
 
 class SGDSolver(Solver):
+
+    """Optimizes network weights using stochastic gradient descent."""
 
     def solve(self, X, Y, batch_size=10):
         """Run SGD on given training examples with specified batch size.

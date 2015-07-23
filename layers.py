@@ -3,6 +3,8 @@ import numpy as np
 
 class Layer(object):
 
+    """A layer in a network."""
+
     def forward(self, x):
         raise NotImplementedError()
 
@@ -12,7 +14,7 @@ class Layer(object):
 
 class LinearLayer(Layer):
 
-    """Linear layer of neural network.
+    """Linear layer of network.
 
     Performs weighted element-wise addition.
 
@@ -44,12 +46,15 @@ class LinearLayer(Layer):
         """Update layer weights by given amounts."""
         self.weights += change_w
         self.biases += change_b
-        print 'weights'
-        print self.weights
-        print self.biases
 
 
 class ActivationLayer(Layer):
+
+    """Activation layer of network.
+
+    Simply applies an activation function to its input.
+
+    """
 
     def __init__(self, activation_type):
         if activation_type == 'sigmoid':
@@ -89,7 +94,6 @@ class ActivationLayer(Layer):
         """Feed input forward through layer and return output."""
         self.x = x
         self.output = self.theta(x)
-        print 'Input: %s' % x
         return self.output
 
     def backward(self, output_delta):
