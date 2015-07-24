@@ -11,10 +11,10 @@ class Solver(object):
         self.network = network
         self.eta = eta
 
-    def solve(self, X, Y, batch_size=10):
+    def solve(self, data, batch_size=10):
         raise NotImplementedError()
 
-    def step(self, X, Y):
+    def step(self, data):
         raise NotImplementedError()
 
 
@@ -22,39 +22,31 @@ class SGDSolver(Solver):
 
     """Optimizes network weights using stochastic gradient descent."""
 
-    def solve(self, X, Y, batch_size=10):
+    def solve(self, data, batch_size=10):
         """Run SGD on given training examples with specified batch size.
 
         Parameters
         ----------
-        X: list
-            training example inputs
-        Y: list
-            training example outputs
+        data: list
+            each element is a tuple (x,y) pair
         batch_size: int
             number of examples to use per update
 
         """
-        random.shuffle(X)
-        X_batches = [X[k:k + batch_size]
-                     for k in range(0, len(X), batch_size)]
-        Y_batches = [Y[k:k + batch_size]
-                     for k in range(0, len(Y), batch_size)]
+        random.shuffle(data)
+        batches = [data[k:k + batch_size]
+                     for k in range(0, len(data), batch_size)]
 
-        for X_batch, Y_batch in zip(X_batches, Y_batches):
-            # if i * batch_size % 1000 == 0:
-            #     print i * batch_size
-            self.step(X_batch, Y_batch)
+        for batch in batches:
+            self.step(batch)
 
-    def step(self, X, Y):
-        """Update network parameters with given inputs and corresponding outputs.
+    def step(self, data):
+        """Update network parameters with given training examples.
 
         Parameters
         ----------
-        X: list
-            training example inputs
-        Y: list
-            training example outputs
+        data: list
+            each element is a tuple (x,y) pair
 
         """
         weighted_layers = self.network.get_weighted_layers()
@@ -62,8 +54,9 @@ class SGDSolver(Solver):
         nabla_w = [np.zeros(layer.weights.shape) for layer in weighted_layers]
         nabla_b = [np.zeros(layer.biases.shape) for layer in weighted_layers]
 
-        for x, y in zip(X, Y):
-            self.network.forward_backward(x, y)
+        for x, y in data:
+            output = self.network.predict(x)
+            self.network.forward_backward(x, y, output - y)  # `output - y` is delta for MSE
             for i, layer in enumerate(weighted_layers):
                 dw, db = layer.get_gradients()
                 nabla_w[i] += dw
@@ -71,8 +64,8 @@ class SGDSolver(Solver):
 
         for i, layer in enumerate(weighted_layers):
             layer.update(
-                -self.eta * (nabla_w[i] / len(X)),  # change in weights
-                -self.eta * (nabla_b[i] / len(X))   # change in biases
+                -self.eta * (nabla_w[i] / len(data)),  # change in weights
+                -self.eta * (nabla_b[i] / len(data))   # change in biases
             )
 
     def step_once(self, x, y):

@@ -32,7 +32,7 @@ class LinearLayer(Layer):
         super(LinearLayer, self)
         self.input_size = input_size
         self.output_size = output_size
-        self.weights = np.zeros((output_size, input_size))
+        self.weights = np.random.randn(output_size, input_size)
         self.biases = np.zeros(output_size)
 
     def forward(self, x):
