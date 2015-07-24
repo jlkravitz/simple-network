@@ -5,7 +5,7 @@ class NeuralNetwork(object):
 
     """Encapsulates a network."""
 
-    def __init__(self, layers, phase=C.Phases.TRAIN):
+    def __init__(self, layers, phase=C.Phases.TEST):
         self.layers = layers
         self.set_phase(phase)
 

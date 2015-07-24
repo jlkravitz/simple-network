@@ -68,52 +68,16 @@ class ActivationLayer(Layer):
     def __init__(self, activation_type):
         super(ActivationLayer, self)
         if activation_type == 'sigmoid':
-            self.theta = ActivationLayer.sigmoid
-            self.theta_prime = ActivationLayer.sigmoid_prime
+            self.theta = C.ActivationFunctions.sigmoid
+            self.theta_prime = C.ActivationFunctions.sigmoid_prime
         elif activation_type == 'tanh':
-            self.theta = ActivationLayer.tanh
-            self.theta_prime = ActivationLayer.tanh_prime
+            self.theta = C.ActivationFunctions.tanh
+            self.theta_prime = C.ActivationFunctions.tanh_prime
         elif activation_type == 'relu':
-            self.theta = ActivationLayer.relu
-            self.theta_prime = ActivationLayer.relu_prime
+            self.theta = C.ActivationFunctions.relu
+            self.theta_prime = C.ActivationFunctions.relu_prime
         else:
             raise ValueError('Given activation is not available.')
-
-    @staticmethod
-    @np.vectorize
-    def sigmoid(z):
-        """The sigmoid function."""
-        return 1.0 / (1.0 + np.exp(-z))
-
-    @staticmethod
-    @np.vectorize
-    def sigmoid_prime(sigmoid_out):
-        """The derivative of the sigmoid function."""
-        return sigmoid_out - sigmoid_out**2
-
-    @staticmethod
-    @np.vectorize
-    def tanh(z):
-        """The tanh function."""
-        return (np.exp(2 * z) - 1) / (np.exp(2 * z) + 1)
-
-    @staticmethod
-    @np.vectorize
-    def tanh_prime(tanh_out):
-        """The derivative of the tanh function."""
-        return 1 - tanh_out**2
-
-    @staticmethod
-    @np.vectorize
-    def relu(z):
-        """The relu function."""
-        return max(0, z)
-
-    @staticmethod
-    @np.vectorize
-    def relu_prime(relu_out):
-        """The derivative of the relu function."""
-        return int(relu_out > 0)
 
     def forward(self, x):
         """Feed input forward through layer and return output."""
