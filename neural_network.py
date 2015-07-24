@@ -1,9 +1,19 @@
+import constants as C
+
+
 class NeuralNetwork(object):
 
     """Encapsulates a network."""
 
-    def __init__(self, layers):
+    def __init__(self, layers, phase=C.Phases.TRAIN):
         self.layers = layers
+        self.set_phase(phase)
+
+    def set_phase(self, phase):
+        """Set phase for network and its layers."""
+        self.phase = phase
+        for layer in self.layers:
+            layer.set_phase(phase)
 
     def predict(self, x):
         """Feed the input through the network and return the result.

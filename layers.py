@@ -1,15 +1,23 @@
 import numpy as np
 
+import constants as C
+
 
 class Layer(object):
 
     """A layer in a network."""
+
+    def __init__(self, phase=C.Phases.TRAIN):
+        self.phase = phase
 
     def forward(self, x):
         raise NotImplementedError()
 
     def backward(self, delta):
         raise NotImplementedError()
+
+    def set_phase(self, phase):
+        self.phase = phase
 
 
 class LinearLayer(Layer):
@@ -21,6 +29,7 @@ class LinearLayer(Layer):
     """
 
     def __init__(self, input_size, output_size):
+        super(LinearLayer, self)
         self.input_size = input_size
         self.output_size = output_size
         self.weights = np.zeros((output_size, input_size))
@@ -57,12 +66,16 @@ class ActivationLayer(Layer):
     """
 
     def __init__(self, activation_type):
+        super(ActivationLayer, self)
         if activation_type == 'sigmoid':
             self.theta = ActivationLayer.sigmoid
             self.theta_prime = ActivationLayer.sigmoid_prime
         elif activation_type == 'tanh':
             self.theta = ActivationLayer.tanh
             self.theta_prime = ActivationLayer.tanh_prime
+        elif activation_type == 'relu':
+            self.theta = ActivationLayer.relu
+            self.theta_prime = ActivationLayer.relu_prime
         else:
             raise ValueError('Given activation is not available.')
 
@@ -74,9 +87,9 @@ class ActivationLayer(Layer):
 
     @staticmethod
     @np.vectorize
-    def sigmoid_prime(z):
+    def sigmoid_prime(sigmoid_out):
         """The derivative of the sigmoid function."""
-        return ActivationLayer.sigmoid(z) - ActivationLayer.sigmoid(z)**2
+        return sigmoid_out - sigmoid_out**2
 
     @staticmethod
     @np.vectorize
@@ -86,9 +99,21 @@ class ActivationLayer(Layer):
 
     @staticmethod
     @np.vectorize
-    def tanh_prime(z):
+    def tanh_prime(tanh_out):
         """The derivative of the tanh function."""
-        return 1 - ActivationLayer.tanh(z)**2
+        return 1 - tanh_out**2
+
+    @staticmethod
+    @np.vectorize
+    def relu(z):
+        """The relu function."""
+        return max(0, z)
+
+    @staticmethod
+    @np.vectorize
+    def relu_prime(relu_out):
+        """The derivative of the relu function."""
+        return int(relu_out > 0)
 
     def forward(self, x):
         """Feed input forward through layer and return output."""
@@ -99,3 +124,25 @@ class ActivationLayer(Layer):
     def backward(self, output_delta):
         """Backward propagate delta and return new delta."""
         return np.multiply(output_delta, self.theta_prime(self.output))
+
+
+class DropoutLayer(Layer):
+
+    """Dropout layer of network; drops random input for the next layer."""
+
+    def __init__(self, threshold=0.5):
+        super(DropoutLayer, self)
+        self.threshold = threshold
+
+    def forward(self, x):
+        if self.phase == C.Phases.TRAIN:
+            self.mask = np.random.binomial(1, 1 - self.threshold, size=x.shape)
+            return x * self.mask
+        else:
+            return (1 - self.threshold) * x
+
+    def backward(self, output_delta):
+        if self.phase == C.Phases.TRAIN:
+            return output_delta * self.mask
+        else:
+            return output_delta
